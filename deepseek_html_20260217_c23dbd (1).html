@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>磅单勾对 · 高保真原型</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft Yahei", -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        body {
+            background-color: #F0F0F0;
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+            position: relative;
+        }
+        /* 标题栏 */
+        .title-bar {
+            width: 1920px;
+            height: 60px;
+            background-color: #E8E8E8;
+            position: relative;
+            border-bottom: 1px solid #CCCCCC;
+        }
+        .title-text {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333333;
+        }
+        .close-btn {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            width: 20px;
+            height: 20px;
+            color: #FF0000;
+            cursor: pointer;
+            font-size: 20px;
+            line-height: 20px;
+            text-align: center;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .close-btn:hover { transform: scale(1.2); color: #cc0000; }
+        /* 查询区 */
+        .query-area {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            z-index: 5;
+        }
+        .text-label {
+            font-size: 12px;
+            color: #333333;
+            line-height: 30px;
+            white-space: nowrap;
+        }
+        .input-box {
+            width: 200px;
+            height: 30px;
+            padding-left: 10px;
+            padding-right: 30px;
+            border: 1px solid #CCCCCC;
+            border-radius: 4px;
+            font-size: 12px;
+            background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z'/%3E%3Cpath d='M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z'/%3E%3C/svg%3E") no-repeat right 8px center;
+            background-size: 14px;
+        }
+        .checkbox {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            color: #333333;
+            cursor: pointer;
+            user-select: none;
+        }
+        .checkbox input {
+            margin-right: 5px;
+            cursor: pointer;
+        }
+        .btn {
+            width: 80px;
+            height: 30px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.1s ease;
+            font-weight: 500;
+        }
+        .btn-primary {
+            background-color: #007AFF;
+            color: #FFFFFF;
+        }
+        .btn-primary:hover { background-color: #005bbf; }
+        .btn-default {
+            background-color: #E8E8E8;
+            color: #333333;
+        }
+        .btn-default:hover { background-color: #d0d0d0; }
+        /* 数据表格 */
+        .data-table {
+            position: absolute;
+            top: 130px;
+            left: 20px;
+            width: 1680px;
+            height: 800px;
+            border: 1px solid #CCCCCC;
+            background-color: #fff;
+            overflow-y: auto;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            border-radius: 4px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        th {
+            background-color: #E8E8E8;
+            font-size: 12px;
+            font-weight: bold;
+            color: #333333;
+            padding: 10px 8px;
+            text-align: left;
+            border: 1px solid #CCCCCC;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+        }
+        td {
+            font-size: 12px;
+            color: #333333;
+            padding: 8px;
+            border: 1px solid #CCCCCC;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        tr:nth-child(even) {
+            background-color: #F9F9F9;
+        }
+        tr:hover {
+            background-color: #eef5fe;
+            cursor: pointer;
+        }
+        tr.selected {
+            background-color: #d9eaff !important;
+            border-left: 3px solid #007AFF;
+        }
+        .dropdown {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-size: 12px;
+            color: #333333;
+            cursor: pointer;
+            outline: none;
+            padding: 2px 0;
+        }
+        .dropdown:hover {
+            background-color: #f0f0f0;
+            border-radius: 2px;
+        }
+        /* 右侧详情面板 */
+        .detail-panel {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 220px;
+            height: 1080px;
+            background-color: #FFFFFF;
+            border-left: 1px solid #CCCCCC;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+        }
+        .panel-title {
+            position: relative;
+            padding: 20px 16px;
+            border-bottom: 1px solid #E8E8E8;
+            flex-shrink: 0;
+        }
+        .panel-title-text {
+            font-size: 15px;
+            font-weight: bold;
+            color: #1e1e1e;
+            letter-spacing: 0.3px;
+        }
+        .refresh-icon {
+            position: absolute;
+            right: 16px;
+            top: 18px;
+            width: 24px;
+            height: 24px;
+            color: #FF9500;
+            cursor: pointer;
+            font-size: 22px;
+            line-height: 24px;
+            text-align: center;
+            border-radius: 4px;
+            transition: 0.2s;
+            background: #f5f5f5;
+        }
+        .refresh-icon:hover {
+            background: #e0e0e0;
+            transform: rotate(30deg);
+        }
+        .detail-content {
+            padding: 16px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        .weight-item {
+            padding: 12px 0;
+            border-bottom: 1px dashed #E0E0E0;
+            font-size: 13px;
+            color: #2c3e50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .weight-item:last-child {
+            border-bottom: none;
+        }
+        .weight-item span:first-child {
+            font-weight: 500;
+            color: #5f6b7a;
+        }
+        .weight-item span:last-child {
+            font-weight: 600;
+            color: #1e293b;
+            background: #f2f4f6;
+            padding: 4px 10px;
+            border-radius: 20px;
+            min-width: 70px;
+            text-align: right;
+        }
+        /* 加载提示 */
+        .loading {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 16px;
+            color: #007AFF;
+            background: rgba(255,255,255,0.9);
+            padding: 12px 24px;
+            border-radius: 40px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 200;
+            border: 1px solid #ccc;
+        }
+        /* 小调整 */
+        .col-weight { width: 90px; }
+        .col-tare { width: 80px; }
+        th:nth-child(8), td:nth-child(8) { width: 90px; }
+        th:nth-child(9), td:nth-child(9) { width: 80px; }
+    </style>
+</head>
+<body>
+    <!-- 标题栏 -->
+    <div class="title-bar">
+        <div class="title-text">磅单勾对 · 计量原型</div>
+        <div class="close-btn" onclick="alert('关闭窗口 (演示状态)')">×</div>
+    </div>
+
+    <!-- 查询区 -->
+    <div class="query-area">
+        <div class="text-label">生成时间：</div>
+        <input type="text" class="input-box" placeholder="2024.04.20 00:00:00" value="2024.04.20 00:00:00">
+        <div class="text-label">至</div>
+        <input type="text" class="input-box" placeholder="2024.04.20 23:59:59" value="2024.04.20 23:59:59">
+        <div class="checkbox">
+            <input type="checkbox" id="errorOnly">
+            <label for="errorOnly">仅有误差磅单</label>
+        </div>
+        <button class="btn btn-primary" id="queryBtn">查询</button>
+        <button class="btn btn-default" id="printBtn" onclick="alert('打印预览 (模拟)')">打印</button>
+        <button class="btn btn-default" onclick="alert('退出系统 (演示)')">退出</button>
+    </div>
+
+    <!-- 加载提示 -->
+    <div class="loading" id="loading">正在刷新数据 ...</div>
+
+    <!-- 数据表格 -->
+    <div class="data-table">
+        <table id="table">
+            <thead>
+                <tr>
+                    <th style="width: 120px">过磅单号</th>
+                    <th style="width: 50px">收发</th>
+                    <th style="width: 130px">收货单位</th>
+                    <th style="width: 240px">发货单位</th>
+                    <th style="width: 110px">运输单号</th>
+                    <th style="width: 95px">车号</th>
+                    <th style="width: 70px">物资</th>
+                    <th style="width: 90px">毛重 (kg)</th>
+                    <th style="width: 80px">皮重 (kg)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 数据行 (保留原数据，皮重通过JS动态生成，更灵活) -->
+                <tr data-weight="94,120"><td>202404200001</td><td>发</td><td>本溪方向</td><td><select class="dropdown"><option selected>本溪钢铁（集团）南芬</option><option>本溪星光硅质(硅粉)</option><option>本溪星光硅质(硅石)</option></select></td><td>0387662</td><td>辽EE1612</td><td>沙石</td><td>94,120</td><td class="tare-cell"></td></tr>
+                <tr data-weight="82,380"><td>202404200002</td><td>发</td><td>本溪方向</td><td><select class="dropdown"><option>本溪钢铁（集团）南芬</option><option selected>本溪星光硅质(硅粉)</option><option>本溪星光硅质(硅石)</option></select></td><td>0419164</td><td>辽CD6876</td><td>硅粉</td><td>82,380</td><td class="tare-cell"></td></tr>
+                <tr data-weight="85,460"><td>202404200003</td><td>发</td><td>本溪方向</td><td><select class="dropdown"><option>本溪钢铁（集团）南芬</option><option selected>本溪星光硅质(硅粉)</option><option>本溪星光硅质(硅石)</option></select></td><td>0419166</td><td>辽EE3998</td><td>硅粉</td><td>85,460</td><td class="tare-cell"></td></tr>
+                <tr data-weight="84,300"><td>202404200004</td><td>发</td><td>本溪方向</td><td><select class="dropdown"><option>本溪钢铁（集团）南芬</option><option selected>本溪星光硅质(硅粉)</option><option>本溪星光硅质(硅石)</option></select></td><td>0419167</td><td>辽CD6087</td><td>硅粉</td><td>84,300</td><td class="tare-cell"></td></tr>
+                <tr data-weight="89,260"><td>202404200005</td><td>发</td><td>本溪方向</td><td><select class="dropdown"><option selected>本溪钢铁（集团）南芬</option><option>本溪星光硅质(硅粉)</option><option>本溪星光硅质(硅石)</option></select></td><td>0388048</td><td>辽EE4383</td><td>沙石</td><td>89,260</td><td class="tare-cell"></td></tr>
+                <tr data-weight="83,400"><td>202404200006</td><td>发</td><td>本溪方向</td><td><select class="dropdown"><option>本溪钢铁（集团）南芬</option><option selected>本溪星光硅质(硅粉)</option><option>本溪星光硅质(硅石)</option></select></td><td>0419168</td><td>辽EE5275</td><td>硅粉</td><td>83,400</td><td class="tare-cell"></td></tr>
+                <tr data-weight="85,220"><td>202404200007</td><td>发</td><td>本溪方向</td><td><select class="dropdown"><option>本溪钢铁（集团）南芬</option><option selected>本溪星光硅质(硅粉)</option><option>本溪星光硅质(硅石)</option></select></td><td>0419169</td><td>辽EE1787</td><td>硅粉</td><td>85,220</td><td class="tare-cell"></td></tr>
+                <tr data-weight="86,980"><td>202404200008</td><td>发</td><td>本溪方向</td><td><select class="dropdown"><option>本溪钢铁（集团）南芬</option><option selected>本溪星光硅质(硅粉)</option><option>本溪星光硅质(硅石)</option></select></td><td>0419165</td><td>辽EE5226</td><td>硅粉</td><td>86,980</td><td class="tare-cell"></td></tr>
+                <tr data-weight="87,000"><td>202404200009</td><td>发</td><td>本溪方向</td><td><select class="dropdown"><option>本溪钢铁（集团）南芬</option><option selected>本溪星光硅质(硅粉)</option><option>本溪星光硅质(硅石)</option></select></td><td>0419171</td><td>辽EE4798</td><td>硅粉</td><td>87,000</td><td class="tare-cell"></td></tr>
+                <tr data-weight="78,440"><td>202404200010</td><td>发</td><td>本溪方向</td><td><select class="dropdown"><option>本溪钢铁（集团）南芬</option><option selected>本溪星光硅质(硅粉)</option><option>本溪星光硅质(硅石)</option></select></td><td>0419172</td><td>辽EE5119</td><td>硅粉</td><td>78,440</td><td class="tare-cell"></td></tr>
+                <tr data-weight="86,940"><td>202404200011</td><td>发</td><td>本溪方向</td><td><select class="dropdown"><option>本溪钢铁（集团）南芬</option><option selected>本溪星光硅质(硅粉)</option><option>本溪星光硅质(硅石)</option></select></td><td>0419170</td><td>辽EE1791</td><td>硅粉</td><td>86,940</td><td class="tare-cell"></td></tr>
+                <tr data-weight="82,960"><td>202404200012</td><td>发</td><td>本溪方向</td><td><select class="dropdown"><option>本溪钢铁（集团）南芬</option><option selected>本溪星光硅质(硅粉)</option><option>本溪星光硅质(硅石)</option></select></td><td>0419173</td><td>辽EE2617</td><td>硅粉</td><td>82,960</td><td class="tare-cell"></td></tr>
+                <tr data-weight="79,800"><td>202404200013</td><td>发</td><td>本溪方向</td><td><select class="dropdown"><option>本溪钢铁（集团）南芬</option><option selected>本溪星光硅质(硅粉)</option><option>本溪星光硅质(硅石)</option></select></td><td>0419174</td><td>辽EE1772</td><td>硅粉</td><td>79,800</td><td class="tare-cell"></td></tr>
+                <tr data-weight="84,520"><td>202404200014</td><td>发</td><td>本溪方向</td><td><select class="dropdown"><option>本溪钢铁（集团）南芬</option><option selected>本溪星光硅质(硅粉)</option><option>本溪星光硅质(硅石)</option></select></td><td>0419175</td><td>辽EE7029</td><td>硅粉</td><td>84,520</td><td class="tare-cell"></td></tr>
+                <tr data-weight="81,860"><td>202404200015</td><td>发</td><td>本溪方向</td><td><select class="dropdown"><option>本溪钢铁（集团）南芬</option><option selected>本溪星光硅质(硅粉)</option><option>本溪星光硅质(硅石)</option></select></td><td>0419176</td><td>辽EE1319</td><td>硅粉</td><td>81,860</td><td class="tare-cell"></td></tr>
+                <tr data-weight="92,420"><td>202404200016</td><td>发</td><td>本溪方向</td><td><select class="dropdown"><option>本溪钢铁（集团）南芬</option><option>本溪星光硅质(硅粉)</option><option selected>本溪星光硅质(硅石)</option></select></td><td>0443946</td><td>辽EE2828</td><td>硅石</td><td>92,420</td><td class="tare-cell"></td></tr>
+                <tr data-weight="98,520"><td>202404200017</td><td>发</td><td>本溪方向</td><td><select class="dropdown"><option>本溪钢铁（集团）南芬</option><option>本溪星光硅质(硅粉)</option><option selected>本溪星光硅质(硅石)</option></select></td><td>0443947</td><td>辽EE6266</td><td>硅石</td><td>98,520</td><td class="tare-cell"></td></tr>
+                <tr data-weight="85,160"><td>202404200018</td><td>发</td><td>本溪方向</td><td><select class="dropdown"><option>本溪钢铁（集团）南芬</option><option selected>本溪星光硅质(硅粉)</option><option>本溪星光硅质(硅石)</option></select></td><td>0419177</td><td>辽EE1757</td><td>硅粉</td><td>85,160</td><td class="tare-cell"></td></tr>
+                <tr data-weight="103,040"><td>202404200019</td><td>发</td><td>本溪方向</td><td><select class="dropdown"><option>本溪钢铁（集团）南芬</option><option>本溪星光硅质(硅粉)</option><option selected>本溪星光硅质(硅石)</option></select></td><td>0443948</td><td>辽EE1299</td><td>硅石</td><td>103,040</td><td class="tare-cell"></td></tr>
+                <tr data-weight="92,200"><td>202404200020</td><td>发</td><td>本溪方向</td><td><select class="dropdown"><option>本溪钢铁（集团）南芬</option><option>本溪星光硅质(硅粉)</option><option selected>本溪星光硅质(硅石)</option></select></td><td>0443949</td><td>辽EE2271</td><td>硅石</td><td>92,200</td><td class="tare-cell"></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 右侧详情面板 (增强) -->
+    <div class="detail-panel">
+        <div class="panel-title">
+            <div class="panel-title-text">📋 磅单详情</div>
+            <div class="refresh-icon" id="refreshDetail" title="随机微调当前皮重">↻</div>
+        </div>
+        <div class="detail-content">
+            <div class="weight-item"><span>毛重</span> <span id="detailGross">--</span></div>
+            <div class="weight-item"><span>皮重</span> <span id="detailTare">--</span></div>
+            <div class="weight-item"><span>净重</span> <span id="detailNet">--</span></div>
+            <div class="weight-item"><span>计量时间</span> <span id="detailTime">--</span></div>
+            <div class="weight-item"><span>状态</span> <span id="detailStatus">⚪ 未勾对</span></div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ----- 工具函数：数字与千位格式 -----
+            function formatNumber(num) {
+                return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
+            function unformat(str) {
+                return parseInt(str.replace(/,/g, ''), 10);
+            }
+
+            // ----- 初始化皮重 (每个空tare-cell填充随机皮重 4800 ~ 10200 kg) -----
+            const rows = document.querySelectorAll('#table tbody tr');
+            rows.forEach(row => {
+                const tareCell = row.querySelector('.tare-cell');
+                if (tareCell) {
+                    // 生成相对合理的皮重 (毛重通常在78k~103k，皮重5k~9k)
+                    const rawTare = Math.floor(Math.random() * (9200 - 5200 + 1) + 5200);  // 5200~9200
+                    const tareFormatted = formatNumber(rawTare);
+                    tareCell.textContent = tareFormatted;
+                    row.setAttribute('data-tare', rawTare);  // 存数字
+                }
+            });
+
+            // ----- 右侧面板元素 -----
+            const detailGross = document.getElementById('detailGross');
+            const detailTare = document.getElementById('detailTare');
+            const detailNet = document.getElementById('detailNet');
+            const detailTime = document.getElementById('detailTime');
+            const detailStatus = document.getElementById('detailStatus');
+
+            // ----- 行点击高亮 & 更新详情 -----
+            let currentRow = null;  // 当前选中行
+
+            function updateDetailPanelFromRow(row) {
+                if (!row) return;
+                // 获取毛重 (第8个td)
+                const grossCell = row.cells[7];  // 索引7是毛重
+                const tareCell = row.cells[8];   // 索引8是皮重
+                if (!grossCell || !tareCell) return;
+
+                const grossStr = grossCell.textContent.trim();     // 带逗号
+                const tareStr = tareCell.textContent.trim();
+
+                const gross = unformat(grossStr);
+                const tare = unformat(tareStr);
+                const net = gross - tare;
+
+                detailGross.textContent = formatNumber(gross) + ' kg';
+                detailTare.textContent = formatNumber(tare) + ' kg';
+                detailNet.textContent = formatNumber(net) + ' kg';
+
+                // 生成一个随机时间 (静态原型内模拟)
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit', second:'2-digit' });
+                detailTime.textContent = '2024-04-20 ' + timeStr;
+
+                // 简单状态: 根据净重是否合理 (如果净重>1000且皮重>0就勾对)
+                if (net > 1000 && tare > 1000) {
+                    detailStatus.textContent = '✅ 已勾对';
+                } else {
+                    detailStatus.textContent = '⏳ 异常';
+                }
+
+                // 保存当前行
+                currentRow = row;
+            }
+
+            // 清除所有行高亮
+            function clearRowHighlight() {
+                rows.forEach(r => r.classList.remove('selected'));
+            }
+
+            // 行点击处理
+            rows.forEach(row => {
+                row.addEventListener('click', function(e) {
+                    // 如果点击的是dropdown，不触发行选中（阻止冒泡）
+                    if (e.target.tagName === 'SELECT' || e.target.classList.contains('dropdown')) {
+                        e.stopPropagation();
+                        return;
+                    }
+                    clearRowHighlight();
+                    this.classList.add('selected');
+                    updateDetailPanelFromRow(this);
+                });
+
+                // 防止下拉框点击冒泡导致行高亮
+                const select = row.querySelector('.dropdown');
+                if (select) {
+                    select.addEventListener('click', (e) => e.stopPropagation());
+                    select.addEventListener('mousedown', (e) => e.stopPropagation());
+                }
+            });
+
+            // 默认选中第一行 (使右侧有数据显示)
+            if (rows.length > 0) {
+                rows[0].classList.add('selected');
+                updateDetailPanelFromRow(rows[0]);
+            }
+
+            // ----- 刷新图标: 随机微调当前行的皮重 (模拟刷新) -----
+            const refreshBtn = document.getElementById('refreshDetail');
+            refreshBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (!currentRow) {
+                    alert('请先选择一行');
+                    return;
+                }
+                // 获取当前皮重单元格
+                const tareCell = currentRow.cells[8];
+                const oldTareStr = tareCell.textContent.trim();
+                let oldTare = unformat(oldTareStr);
+                // 随机变化 -80 ~ +80 kg
+                const delta = Math.floor(Math.random() * 161) - 80;  // -80..80
+                let newTare = oldTare + delta;
+                if (newTare < 4500) newTare = 4500;
+                if (newTare > 10500) newTare = 10500;
+                const newTareFormatted = formatNumber(newTare);
+                tareCell.textContent = newTareFormatted;
+                currentRow.setAttribute('data-tare', newTare);
+
+                // 同时更新右侧 (如果当前行是选中行)
+                if (currentRow.classList.contains('selected')) {
+                    updateDetailPanelFromRow(currentRow);
+                }
+
+                // 小小提示 (动画感)
+                refreshBtn.style.transform = 'rotate(30deg)';
+                setTimeout(() => refreshBtn.style.transform = '', 200);
+            });
+
+            // ----- 查询按钮: 模拟加载 + 随机刷新所有皮重 (数据刷新) -----
+            const queryBtn = document.getElementById('queryBtn');
+            const loading = document.getElementById('loading');
+            const errorOnlyCheck = document.getElementById('errorOnly');
+
+            function randomizeAllTares() {
+                rows.forEach(row => {
+                    const tareCell = row.cells[8];
+                    let newTare = Math.floor(Math.random() * (9400 - 5000 + 1) + 5000);
+                    tareCell.textContent = formatNumber(newTare);
+                    row.setAttribute('data-tare', newTare);
+                });
+            }
+
+            queryBtn.addEventListener('click', function() {
+                loading.style.display = 'block';
+                // 模拟加载
+                setTimeout(() => {
+                    // 如果有“仅有误差磅单”勾选，则模拟过滤: 这里简化只随机刷新 + 展示提示
+                    if (errorOnlyCheck.checked) {
+                        // 随机给一些行加橙色背景? 但为了简洁，用alert代替
+                        alert('“仅有误差磅单”演示：可筛选净重异常的行，此处仅随机刷新皮重。');
+                    } else {
+                        // 什么都不做
+                    }
+                    // 随机刷新所有皮重 (模拟新数据)
+                    randomizeAllTares();
+
+                    // 如果之前有选中行，更新该行详情
+                    if (currentRow) {
+                        updateDetailPanelFromRow(currentRow);
+                    } else if (rows.length > 0) {
+                        rows[0].classList.add('selected');
+                        updateDetailPanelFromRow(rows[0]);
+                    }
+                    loading.style.display = 'none';
+                }, 800);
+            });
+
+            // 可选：双击行模拟快速勾对
+            rows.forEach(row => {
+                row.addEventListener('dblclick', function() {
+                    alert('模拟快速勾对成功！(单号: ' + this.cells[0].textContent + ')');
+                });
+            });
+
+            // 保持右侧数据与选中行同步 (如果有selected初始)
+            if (rows.length > 0 && document.querySelector('tr.selected')) {
+                updateDetailPanelFromRow(document.querySelector('tr.selected'));
+            }
+        })();
+    </script>
+    <!-- 额外说明: 原型支持点击行、刷新、查询模拟、误差复选框演示 -->
+</body>
+</html>
