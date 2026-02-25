@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>南沙地磅 · 站点人员详情</title>
+    <!-- 使用 Vue 3 CDN，轻量实现交互 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        body {
+            background-color: #f2f4f8;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        /* 整体容器，模拟桌面应用卡片感 */
+        .app-container {
+            width: 1400px;
+            max-width: 100%;
+            background-color: #fff;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            display: flex;
+            margin: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #d9dee6;
+        }
+
+        /* ========= 左侧导航 ========= */
+        .sidebar {
+            width: 220px;
+            background-color: #f0f3f7;
+            border-right: 1px solid #d2d9e2;
+            padding: 20px 0;
+        }
+        .sidebar-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e2a3a;
+            padding: 0 16px 12px 16px;
+            border-bottom: 1px solid #cbd2dc;
+            margin-bottom: 12px;
+        }
+        .nav-item {
+            padding: 10px 16px 10px 30px;
+            font-size: 14px;
+            color: #2c3f55;
+            cursor: default;
+            position: relative;
+        }
+        .nav-item:hover {
+            background-color: #e2e7f0;
+        }
+        .nav-item.active {
+            background-color: #d1dbe8;
+            font-weight: 500;
+            border-left: 4px solid #1e5f9e;
+            color: #1a3a5e;
+        }
+        .sub-menu {
+            padding-left: 20px;
+        }
+        .sub-menu .nav-item {
+            padding-left: 40px;
+            font-size: 13px;
+        }
+        .sub-indent {
+            padding-left: 46px !important;
+            background-color: transparent;
+        }
+        .sub-indent.active {
+            background-color: #c2d0e2;
+        }
+
+        /* ========= 右侧主区域 ========= */
+        .main-content {
+            flex: 1;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            min-width: 0; /* 防止flex溢出 */
+        }
+        .main-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #e5e9f0;
+            background-color: #fafbfc;
+        }
+        .breadcrumb {
+            font-size: 14px;
+            color: #3e5a76;
+            margin-bottom: 12px;
+        }
+        .breadcrumb span {
+            color: #1f3a5f;
+            font-weight: 500;
+        }
+        .red-tip {
+            background-color: #ffefef;
+            border-left: 4px solid #c72a2a;
+            color: #a52a2a;
+            font-size: 13px;
+            padding: 8px 16px;
+            border-radius: 0 4px 4px 0;
+            margin-top: 6px;
+        }
+
+        /* 工具栏 */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .search-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .search-input {
+            width: 260px;
+            padding: 8px 12px;
+            border: 1px solid #bcc9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: white;
+        }
+        .search-input:focus {
+            border-color: #4f7eb3;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(30, 95, 158, 0.1);
+        }
+        .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+        .btn {
+            padding: 6px 16px;
+            border: 1px solid #a7b8cc;
+            background-color: white;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #1e3a5f;
+            cursor: pointer;
+            transition: all 0.1s;
+            min-width: 64px;
+        }
+        .btn:hover {
+            background-color: #eaf0f9;
+            border-color: #7a97b9;
+        }
+        .btn:active {
+            background-color: #d4deec;
+        }
+        .btn-danger {
+            border-color: #c95b5b;
+            color: #b13e3e;
+        }
+        .btn-danger:hover {
+            background-color: #feecec;
+        }
+
+        /* 表格区域 */
+        .table-wrapper {
+            margin: 0 24px 20px 24px;
+            border: 1px solid #d7dee8;
+            border-radius: 6px;
+            overflow-x: auto;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1200px;
+            font-size: 14px;
+            background-color: white;
+        }
+        th {
+            background-color: #eef2f7;
+            color: #1f3a5f;
+            font-weight: 600;
+            padding: 12px 8px;
+            white-space: nowrap;
+            border-bottom: 1px solid #c6d0dd;
+            text-align: center;
+        }
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: center;
+            color: #1e2f40;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover td {
+            background-color: #f6f9ff;
+        }
+        .checkbox-col {
+            width: 35px;
+            text-align: center;
+        }
+        .checkbox-col input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #2f6eb0;
+        }
+        .permission-symbol {
+            color: #2b7d3b;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .password-mask {
+            font-family: monospace;
+            letter-spacing: 2px;
+            color: #4a5c72;
+        }
+
+        /* 分页 */
+        .pagination-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 24px 24px 24px;
+            font-size: 14px;
+            color: #3d5775;
+        }
+        .pagination-controls {
+            display: flex;
+            gap: 8px;
+        }
+        .page-btn {
+            padding: 5px 12px;
+            border: 1px solid #bcc9d9;
+            background-color: white;
+            border-radius: 4px;
+            cursor: default;
+            color: #3a5b82;
+        }
+        .page-btn.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            background-color: #f1f5f9;
+        }
+        .page-num {
+            padding: 5px 12px;
+            background-color: #eef3fc;
+            border: 1px solid #b1c6df;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        /* 弹窗遮罩 */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-card {
+            background-color: white;
+            width: 500px;
+            max-width: 90%;
+            border-radius: 8px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            border: 1px solid #b3c4d9;
+            animation: fadeIn 0.2s;
+        }
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #d9e1ec;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a3b5e;
+            background-color: #f2f7fd;
+            border-radius: 8px 8px 0 0;
+        }
+        .modal-body {
+            padding: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        .form-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .form-label {
+            width: 100px;
+            font-size: 14px;
+            color: #2f4a6e;
+            flex-shrink: 0;
+        }
+        .form-value {
+            flex: 1;
+        }
+        .form-control {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #b8c7db;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .form-control[disabled], .form-control[readonly] {
+            background-color: #f2f5fa;
+            color: #2c3f5e;
+            border-color: #c8d3e3;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #d9e1ec;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            background-color: #fafdff;
+        }
+        .btn-blue {
+            background-color: #1e5f9e;
+            border-color: #1a4a7a;
+            color: white;
+        }
+        .btn-blue:hover {
+            background-color: #165186;
+        }
+        .btn-gray {
+            background-color: #f1f5fb;
+            border-color: #b0c3da;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="app-container">
+            <!-- 左侧导航 -->
+            <div class="sidebar">
+                <div class="sidebar-title">👥 人员管理</div>
+                <div class="nav-item">上网记录</div>
+                <div class="nav-item">数据监控</div>
+                <div class="nav-item">上磅记录</div>
+                <div class="nav-item" style="font-weight:600;">人员管理</div>
+                <div class="sub-menu">
+                    <div class="nav-item sub-indent active">站点人员详情</div>
+                    <div class="nav-item sub-indent">白名单</div>
+                    <div class="nav-item sub-indent">黑名单</div>
+                </div>
+            </div>
+
+            <!-- 右侧主内容 -->
+            <div class="main-content">
+                <div class="main-header">
+                    <div class="breadcrumb">
+                        <span>南沙地磅管理系统</span> > <span>人员管理</span>
+                    </div>
+                    <div class="red-tip">
+                        ⚠ 注：用户编码必须使用系统自动生成的四位数字编码
+                    </div>
+                </div>
+
+                <!-- 搜索栏 + 操作按钮 -->
+                <div class="toolbar">
+                    <div class="search-area">
+                        <input class="search-input" type="text" v-model="searchKeyword" placeholder="输入编码或姓名" @input="handleSearch">
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn" @click="openAddModal">➕ 新增</button>
+                        <button class="btn" @click="openEditModal">✏️ 修改</button>
+                        <button class="btn btn-danger" @click="confirmDelete">🗑️ 删除</button>
+                    </div>
+                </div>
+
+                <!-- 数据表格 -->
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="checkbox-col">
+                                    <input type="checkbox" @change="toggleAll" :checked="isAllSelected">
+                                </th>
+                                <th>检斤点号</th><th>用户编码</th><th>类型</th><th>用户名</th><th>密码</th>
+                                <th>收货</th><th>发货</th><th>补收</th><th>补发</th><th>作废</th><th>报表</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in filteredList" :key="item.pointId">
+                                <td class="checkbox-col">
+                                    <input type="checkbox" :value="item.pointId" v-model="selectedRowKeys">
+                                </td>
+                                <td>{{ item.pointId }}</td>
+                                <td>{{ item.userCode }}</td>
+                                <td>{{ item.type }}</td>
+                                <td>{{ item.userName }}</td>
+                                <td><span class="password-mask">••••••</span></td>
+                                <td><span class="permission-symbol" v-if="item.receipt">✔</span><span v-else>—</span></td>
+                                <td><span class="permission-symbol" v-if="item.delivery">✔</span><span v-else>—</span></td>
+                                <td><span class="permission-symbol" v-if="item.receiptSup">✔</span><span v-else>—</span></td>
+                                <td><span class="permission-symbol" v-if="item.deliverySup">✔</span><span v-else>—</span></td>
+                                <td><span class="permission-symbol" v-if="item.void">✔</span><span v-else>—</span></td>
+                                <td><span class="permission-symbol" v-if="item.report">✔</span><span v-else>—</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 分页信息 -->
+                <div class="pagination-bar">
+                    <div>📌 每页最多10条数据，共 {{ tableData.length }} 条数据</div>
+                    <div class="pagination-controls">
+                        <span class="page-btn disabled">« 上一页</span>
+                        <span class="page-num">1</span>
+                        <span class="page-btn disabled">下一页 »</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 新增 / 修改 弹窗 (二合一) -->
+        <div v-if="showFormModal" class="modal-overlay" @click.self="closeModal">
+            <div class="modal-card">
+                <div class="modal-header">{{ modalTitle }}</div>
+                <div class="modal-body">
+                    <div class="form-row">
+                        <span class="form-label">检斤点号</span>
+                        <div class="form-value"><input class="form-control" v-model="formData.pointId" readonly disabled></div>
+                    </div>
+                    <div class="form-row">
+                        <span class="form-label">用户编码</span>
+                        <div class="form-value"><input class="form-control" v-model="formData.userCode" readonly disabled></div>
+                    </div>
+                    <div class="form-row">
+                        <span class="form-label">类型</span>
+                        <div class="form-value">
+                            <select class="form-control" v-model="formData.type">
+                                <option value="过磅员">过磅员</option>
+                                <option value="监磅员">监磅员</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <span class="form-label">用户名</span>
+                        <div class="form-value"><input class="form-control" v-model="formData.userName" placeholder="输入姓名"></div>
+                    </div>
+                    <div class="form-row">
+                        <span class="form-label">密码</span>
+                        <div class="form-value"><input class="form-control" v-model="formData.password" type="text" placeholder="输入密码"></div>
+                    </div>
+                    <div class="form-row">
+                        <span class="form-label">权限配置</span>
+                        <div class="form-value checkbox-group">
+                            <label class="checkbox-item"><input type="checkbox" v-model="formData.receipt"> 收货</label>
+                            <label class="checkbox-item"><input type="checkbox" v-model="formData.delivery"> 发货</label>
+                            <label class="checkbox-item"><input type="checkbox" v-model="formData.receiptSup"> 补收</label>
+                            <label class="checkbox-item"><input type="checkbox" v-model="formData.deliverySup"> 补发</label>
+                            <label class="checkbox-item"><input type="checkbox" v-model="formData.void"> 作废</label>
+                            <label class="checkbox-item"><input type="checkbox" v-model="formData.report"> 报表</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-gray" @click="closeModal">取消</button>
+                    <button class="btn btn-blue" @click="saveForm">保存</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 删除确认弹窗 -->
+        <div v-if="showDeleteConfirm" class="modal-overlay" @click.self="showDeleteConfirm = false">
+            <div class="modal-card" style="width: 400px;">
+                <div class="modal-header">确认删除</div>
+                <div class="modal-body" style="padding: 30px 20px; text-align: center;">
+                    <p style="font-size: 16px;">确定要删除选中的 <strong style="color:#b13e3e;">{{ deleteCount }}</strong> 条数据吗？</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-gray" @click="showDeleteConfirm = false">取消</button>
+                    <button class="btn btn-blue" style="background-color: #b13e3e; border-color: #8f3232;" @click="executeDelete">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, reactive, computed, watch } = Vue;
+
+        const app = createApp({
+            setup() {
+                // ---------- 原始数据 ----------
+                const tableData = ref([
+                    { pointId: 1, userCode: '0021', type: '过磅员', userName: '杨像', password: 'ps123', receipt: true, delivery: true, receiptSup: true, deliverySup: true, void: true, report: true },
+                    { pointId: 2, userCode: '0003', type: '监磅员', userName: '刘楠', password: 'ps456', receipt: true, delivery: true, receiptSup: true, deliverySup: true, void: true, report: true },
+                    { pointId: 3, userCode: '0005', type: '过磅员', userName: '杨像', password: 'ps789', receipt: true, delivery: true, receiptSup: true, deliverySup: true, void: true, report: true },
+                    { pointId: 4, userCode: '0009', type: '监磅员', userName: '刘楠', password: 'ps000', receipt: true, delivery: true, receiptSup: true, deliverySup: true, void: true, report: true }
+                ]);
+
+                // 搜索关键字
+                const searchKeyword = ref('');
+                // 选中的行 (pointId)
+                const selectedRowKeys = ref([]);
+
+                // 弹窗控制
+                const showFormModal = ref(false);
+                const modalTitle = ref('新增数据');
+                const isEditMode = ref(false);  // 用于区分新增/修改，但表单统一用formData
+                const formData = reactive({
+                    pointId: null,
+                    userCode: '',
+                    type: '过磅员',
+                    userName: '',
+                    password: '',
+                    receipt: false,
+                    delivery: false,
+                    receiptSup: false,
+                    deliverySup: false,
+                    void: false,
+                    report: false
+                });
+
+                // 删除确认弹窗
+                const showDeleteConfirm = ref(false);
+                const deleteCount = computed(() => selectedRowKeys.value.length);
+
+                // 计算属性：过滤后的列表
+                const filteredList = computed(() => {
+                    const kw = searchKeyword.value.trim().toLowerCase();
+                    if (!kw) return tableData.value;
+                    return tableData.value.filter(item =>
+                        item.userCode.includes(kw) || item.userName.toLowerCase().includes(kw)
+                    );
+                });
+
+                // 全选逻辑
+                const isAllSelected = computed({
+                    get: () => filteredList.value.length > 0 && filteredList.value.every(item => selectedRowKeys.value.includes(item.pointId)),
+                    set: (value) => {
+                        if (value) {
+                            const allIds = filteredList.value.map(i => i.pointId);
+                            selectedRowKeys.value = [...new Set([...selectedRowKeys.value, ...allIds])];
+                        } else {
+                            const filteredIds = filteredList.value.map(i => i.pointId);
+                            selectedRowKeys.value = selectedRowKeys.value.filter(id => !filteredIds.includes(id));
+                        }
+                    }
+                });
+
+                function toggleAll(e) {
+                    isAllSelected.value = e.target.checked;
+                }
+
+                // 生成不重复的四位用户编码 (随机，且不与现有冲突)
+                function generateUniqueUserCode() {
+                    let newCode;
+                    let exists;
+                    const existingCodes = tableData.value.map(d => d.userCode);
+                    do {
+                        const num = Math.floor(1000 + Math.random() * 9000);
+                        newCode = num.toString();
+                        exists = existingCodes.includes(newCode);
+                    } while (exists);
+                    return newCode;
+                }
+
+                // 生成新的检斤点号 (最大+1)
+                function generateNextPointId() {
+                    if (tableData.value.length === 0) return 1;
+                    return Math.max(...tableData.value.map(d => d.pointId)) + 1;
+                }
+
+                // 重置表单 (用于新增)
+                function resetForm() {
+                    formData.pointId = generateNextPointId();
+                    formData.userCode = generateUniqueUserCode();
+                    formData.type = '过磅员';
+                    formData.userName = '';
+                    formData.password = '';
+                    formData.receipt = false;
+                    formData.delivery = false;
+                    formData.receiptSup = false;
+                    formData.deliverySup = false;
+                    formData.void = false;
+                    formData.report = false;
+                }
+
+                // 打开新增弹窗
+                function openAddModal() {
+                    isEditMode.value = false;
+                    modalTitle.value = '新增数据';
+                    resetForm();
+                    showFormModal.value = true;
+                }
+
+                // 打开修改弹窗
+                function openEditModal() {
+                    if (selectedRowKeys.value.length !== 1) {
+                        alert('请选择一行数据进行修改（只能单选）');
+                        return;
+                    }
+                    const pointId = selectedRowKeys.value[0];
+                    const origin = tableData.value.find(d => d.pointId === pointId);
+                    if (!origin) return;
+
+                    // 深拷贝到formData
+                    Object.assign(formData, JSON.parse(JSON.stringify(origin)));
+                    isEditMode.value = true;
+                    modalTitle.value = '修改数据';
+                    showFormModal.value = true;
+                }
+
+                // 关闭弹窗
+                function closeModal() {
+                    showFormModal.value = false;
+                }
+
+                // 保存 (新增/修改)
+                function saveForm() {
+                    // 必填校验
+                    if (!formData.userName || !formData.password || !formData.type) {
+                        alert('有字段信息未填写完成');
+                        return;
+                    }
+
+                    if (isEditMode.value) {
+                        // 修改：根据pointId找到索引更新
+                        const index = tableData.value.findIndex(d => d.pointId === formData.pointId);
+                        if (index !== -1) {
+                            tableData.value[index] = { ...formData };  // 替换
+                        }
+                    } else {
+                        // 新增
+                        tableData.value.push({ ...formData });
+                    }
+                    // 关闭弹窗，清空选中（避免脏数据）
+                    selectedRowKeys.value = [];
+                    showFormModal.value = false;
+                }
+
+                // 点击删除按钮 -> 显示确认弹窗
+                function confirmDelete() {
+                    if (selectedRowKeys.value.length === 0) {
+                        alert('请至少选择一条数据');
+                        return;
+                    }
+                    showDeleteConfirm.value = true;
+                }
+
+                // 执行删除
+                function executeDelete() {
+                    const toDelete = new Set(selectedRowKeys.value);
+                    tableData.value = tableData.value.filter(item => !toDelete.has(item.pointId));
+                    selectedRowKeys.value = [];
+                    showDeleteConfirm.value = false;
+                }
+
+                // 搜索 (其实v-model实时过滤，此函数仅留作占位)
+                function handleSearch() { }
+
+                return {
+                    tableData,
+                    searchKeyword,
+                    selectedRowKeys,
+                    showFormModal,
+                    modalTitle,
+                    formData,
+                    showDeleteConfirm,
+                    deleteCount,
+                    filteredList,
+                    isAllSelected,
+                    toggleAll,
+                    openAddModal,
+                    openEditModal,
+                    closeModal,
+                    saveForm,
+                    confirmDelete,
+                    executeDelete,
+                    handleSearch
+                };
+            }
+        });
+
+        app.mount('#app');
+    </script>
+</body>
+</html>
