@@ -1,0 +1,1193 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>中粮优采 - 科技生活</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f5f5;
+            padding-bottom: 70px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* 顶部导航栏 */
+        .header {
+            background: linear-gradient(135deg, #fff 0%, #f8f8f8 100%);
+            padding: 10px 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .logo-text {
+            font-size: 14px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .logo-text span {
+            display: block;
+            font-size: 10px;
+            color: #666;
+            font-weight: normal;
+        }
+
+        .search-box {
+            flex: 1;
+            margin: 0 15px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            height: 36px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 18px;
+            padding: 0 40px 0 35px;
+            font-size: 14px;
+            color: #333;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            background: #fff;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+
+        .search-input::placeholder {
+            color: #999;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            opacity: 0.5;
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #FFD700;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #e0e0e0 0%, #f0f0f0 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+
+        .user-avatar svg {
+            width: 20px;
+            height: 20px;
+            fill: #999;
+        }
+
+        /* Banner轮播区 */
+        .banner-section {
+            padding: 0 15px;
+            margin-top: 10px;
+        }
+
+        .banner-container {
+            width: 100%;
+            height: 160px;
+            background: linear-gradient(135deg, #2196F3 0%, #03A9F4 50%, #00BCD4 100%);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .banner-container:active {
+            transform: scale(0.98);
+        }
+
+        .banner-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            flex-direction: column;
+        }
+
+        .banner-icon {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .banner-icon svg {
+            width: 40px;
+            height: 40px;
+            fill: white;
+        }
+
+        .banner-dots {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .dot.active {
+            background: white;
+            width: 16px;
+            border-radius: 3px;
+        }
+
+        /* 分类入口区 */
+        .category-section {
+            background: white;
+            margin: 15px;
+            border-radius: 12px;
+            padding: 20px 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px 10px;
+        }
+
+        .category-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 5px;
+            border-radius: 8px;
+        }
+
+        .category-item:hover {
+            background: #f5f5f5;
+        }
+
+        .category-item:active {
+            transform: scale(0.92);
+            background: #e8e8e8;
+        }
+
+        .category-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 2px solid #fff;
+            transition: all 0.2s;
+        }
+
+        .category-icon svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .category-item:nth-child(1) .category-icon { background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%); }
+        .category-item:nth-child(1) svg { fill: #FF9800; }
+        .category-item:nth-child(2) .category-icon { background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%); }
+        .category-item:nth-child(2) svg { fill: #F44336; }
+        .category-item:nth-child(3) .category-icon { background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); }
+        .category-item:nth-child(3) svg { fill: #2196F3; }
+        .category-item:nth-child(4) .category-icon { background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); }
+        .category-item:nth-child(4) svg { fill: #4CAF50; }
+        .category-item:nth-child(5) .category-icon { background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%); }
+        .category-item:nth-child(5) svg { fill: #9C27B0; }
+        .category-item:nth-child(6) .category-icon { background: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%); }
+        .category-item:nth-child(6) svg { fill: #009688; }
+        .category-item:nth-child(7) .category-icon { background: linear-gradient(135deg, #FFF9C4 0%, #FFF59D 100%); }
+        .category-item:nth-child(7) svg { fill: #FFC107; }
+        .category-item:nth-child(8) .category-icon { background: linear-gradient(135deg, #FBE9E7 0%, #FFCCBC 100%); }
+        .category-item:nth-child(8) svg { fill: #FF5722; }
+
+        .category-name {
+            font-size: 12px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        /* 快讯公告区 */
+        .news-section {
+            background: white;
+            margin: 0 15px 15px;
+            border-radius: 12px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .news-label {
+            color: #E53935;
+            font-weight: 700;
+            font-size: 16px;
+            white-space: nowrap;
+        }
+
+        .news-divider {
+            width: 1px;
+            height: 16px;
+            background: #e0e0e0;
+        }
+
+        .news-content {
+            flex: 1;
+            color: #666;
+            font-size: 13px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* 精选活动区 */
+        .activity-section {
+            padding: 0 15px;
+            margin-bottom: 15px;
+        }
+
+        .activity-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .activity-card {
+            height: 80px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            flex-direction: column;
+        }
+
+        .activity-card:active {
+            transform: scale(0.96);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        .activity-card.cake {
+            background: linear-gradient(135deg, #FF8A80 0%, #FF5252 100%);
+        }
+
+        .activity-card.movie {
+            background: linear-gradient(135deg, #FFD54F 0%, #FFB300 100%);
+            color: #333;
+        }
+
+        .activity-card::after {
+            content: '';
+            position: absolute;
+            right: -10px;
+            bottom: -10px;
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+        }
+
+        .activity-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 4px;
+            z-index: 1;
+        }
+
+        .activity-title {
+            font-size: 16px;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* 服务入口区 */
+        .service-section {
+            background: white;
+            margin: 0 15px 15px;
+            border-radius: 12px;
+            padding: 20px 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .service-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 5px;
+            border-radius: 8px;
+        }
+
+        .service-item:hover {
+            background: #f5f5f5;
+        }
+
+        .service-item:active {
+            transform: scale(0.92);
+            background: #e8e8e8;
+        }
+
+        .service-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 2px solid #fff;
+            transition: all 0.2s;
+        }
+
+        .service-icon svg {
+            width: 28px;
+            height: 28px;
+            fill: white;
+        }
+
+        .service-item:nth-child(1) .service-icon { background: linear-gradient(135deg, #EF5350 0%, #D32F2F 100%); }
+        .service-item:nth-child(2) .service-icon { background: linear-gradient(135deg, #EC407A 0%, #C2185B 100%); }
+        .service-item:nth-child(3) .service-icon { background: linear-gradient(135deg, #42A5F5 0%, #1976D2 100%); }
+        .service-item:nth-child(4) .service-icon { background: linear-gradient(135deg, #FFA726 0%, #F57C00 100%); }
+        .service-item:nth-child(5) .service-icon { background: linear-gradient(135deg, #66BB6A 0%, #388E3C 100%); }
+
+        .service-name {
+            font-size: 11px;
+            color: #333;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        /* 双栏广告区 */
+        .ads-section {
+            padding: 0 15px;
+            margin-bottom: 15px;
+        }
+
+        .ads-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .ads-left {
+            background: linear-gradient(135deg, #C8E6C9 0%, #A5D6A7 100%);
+            border-radius: 10px;
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2E7D32;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s;
+            flex-direction: column;
+        }
+
+        .ads-left:active {
+            transform: scale(0.98);
+        }
+
+        .ads-left .big-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .ads-left .big-icon svg {
+            width: 40px;
+            height: 40px;
+            fill: #2E7D32;
+        }
+
+        .ads-right {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .ads-small {
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            font-weight: 500;
+            border: 1px solid #f0f0f0;
+        }
+
+        .ads-small:active {
+            background: #f5f5f5;
+            transform: scale(0.95);
+        }
+
+        /* 精选商品区 */
+        .products-section {
+            background: white;
+            margin: 0 15px 15px;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            position: relative;
+            padding-left: 12px;
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 18px;
+            background: linear-gradient(180deg, #4CAF50 0%, #2E7D32 100%);
+            border-radius: 2px;
+        }
+
+        .view-more {
+            font-size: 13px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .view-more:hover {
+            color: #4CAF50;
+            background: #f5f5f5;
+        }
+
+        .view-more:active {
+            background: #e8e8e8;
+        }
+
+        .category-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            scrollbar-width: none;
+        }
+
+        .category-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab {
+            padding: 6px 16px;
+            border-radius: 16px;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+            border: 1px solid #e0e0e0;
+            color: #666;
+            background: #f5f5f5;
+            user-select: none;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+        }
+
+        .tab:active {
+            transform: scale(0.95);
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .product-card {
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .product-card:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .product-img {
+            width: 100%;
+            height: 80px;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #bbb;
+            font-size: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-img::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            background: #ddd;
+            border-radius: 4px;
+        }
+
+        .product-info {
+            padding: 8px;
+        }
+
+        .product-name {
+            font-size: 12px;
+            color: #333;
+            margin-bottom: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .product-price {
+            font-size: 14px;
+            color: #E53935;
+            font-weight: 700;
+        }
+
+        .product-price span {
+            font-size: 11px;
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: white;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .nav-item.active {
+            color: #4CAF50;
+        }
+
+        .nav-item:not(.active) {
+            color: #999;
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 2px;
+            transition: all 0.3s;
+        }
+
+        .nav-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: currentColor;
+        }
+
+        .nav-text {
+            font-size: 11px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .nav-item.active .nav-icon-wrapper {
+            background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0;
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+            position: absolute;
+            top: -8px;
+            transition: all 0.3s;
+        }
+
+        .nav-item.active .nav-icon {
+            margin-bottom: 0;
+            width: 24px;
+            height: 24px;
+        }
+
+        .nav-item.active .nav-text {
+            margin-top: 32px;
+        }
+
+        /* 点击反馈 */
+        .click-feedback {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .click-feedback::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(0,0,0,0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
+        }
+
+        .click-feedback:active::after {
+            width: 100px;
+            height: 100px;
+        }
+
+        /* 提示消息 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        /* 响应式 */
+        @media (max-width: 375px) {
+            .products-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 414px) {
+            .products-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 提示消息 -->
+    <div class="toast" id="toast"></div>
+
+    <!-- 顶部导航 -->
+    <header class="header">
+        <div class="header-top">
+            <div class="logo">
+                <div class="logo-icon">优</div>
+                <div class="logo-text">
+                    中粮优采
+                    <span>科技生活</span>
+                </div>
+            </div>
+            <div class="search-box">
+                <svg class="search-icon" viewBox="0 0 24 24">
+                    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+                <input type="text" class="search-input" placeholder="请输入关键字搜索" id="searchInput">
+                <button class="search-btn" onclick="handleSearch()">⚡</button>
+            </div>
+            <div class="user-avatar" onclick="showToast('进入个人中心')">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+            </div>
+        </div>
+    </header>
+
+    <!-- Banner轮播 -->
+    <section class="banner-section">
+        <div class="banner-container" onclick="showToast('查看Banner详情')">
+            <div class="banner-content">
+                <div class="banner-icon">
+                    <svg viewBox="0 0 24 24" style="width: 40px; height: 40px; fill: white;">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                </div>
+                <div>找回儿时纯粹的味道</div>
+            </div>
+            <div class="banner-dots">
+                <div class="dot active" onclick="switchBanner(0)"></div>
+                <div class="dot" onclick="switchBanner(1)"></div>
+                <div class="dot" onclick="switchBanner(2)"></div>
+                <div class="dot" onclick="switchBanner(3)"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 分类入口 -->
+    <section class="category-section">
+        <div class="category-grid">
+            <div class="category-item" onclick="showToast('当季水果分类')">
+                <div class="category-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                </div>
+                <div class="category-name">当季水果</div>
+            </div>
+            <div class="category-item" onclick="showToast('肉禽蛋品分类')">
+                <div class="category-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                </div>
+                <div class="category-name">肉禽蛋品</div>
+            </div>
+            <div class="category-item" onclick="showToast('水产海鲜分类')">
+                <div class="category-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                </div>
+                <div class="category-name">水产海鲜</div>
+            </div>
+            <div class="category-item" onclick="showToast('粮油调味分类')">
+                <div class="category-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                </div>
+                <div class="category-name">粮油调味</div>
+            </div>
+            <div class="category-item" onclick="showToast('乳品烘焙分类')">
+                <div class="category-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                </div>
+                <div class="category-name">乳品烘焙</div>
+            </div>
+            <div class="category-item" onclick="showToast('休闲零食分类')">
+                <div class="category-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                </div>
+                <div class="category-name">休闲零食</div>
+            </div>
+            <div class="category-item" onclick="showToast('水饮冲调分类')">
+                <div class="category-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                </div>
+                <div class="category-name">水饮冲调</div>
+            </div>
+            <div class="category-item" onclick="showToast('美妆日用分类')">
+                <div class="category-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                </div>
+                <div class="category-name">美妆日用</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 快讯公告 -->
+    <section class="news-section">
+        <div class="news-label">快讯</div>
+        <div class="news-divider"></div>
+        <div class="news-content">春季新鲜水果上市，限时特惠活动中...</div>
+    </section>
+
+    <!-- 精选活动 -->
+    <section class="activity-section">
+        <div class="activity-grid">
+            <div class="activity-card cake" onclick="showToast('蛋糕精选活动')">
+                <div class="activity-subtitle">美味蛋糕超有料</div>
+                <div class="activity-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="white" style="margin-right: 4px;">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                    </svg>
+                    蛋糕精选
+                </div>
+            </div>
+            <div class="activity-card movie" onclick="showToast('电影精选活动')">
+                <div class="activity-subtitle">热门影片实惠购</div>
+                <div class="activity-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#333" style="margin-right: 4px;">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                    </svg>
+                    电影精选
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 服务入口 -->
+    <section class="service-section">
+        <div class="service-grid">
+            <div class="service-item" onclick="showToast('优采福利')">
+                <div class="service-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                </div>
+                <div class="service-name">优采福利</div>
+            </div>
+            <div class="service-item" onclick="showToast('优福享')">
+                <div class="service-icon">
+                    <svg viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg>
+                </div>
+                <div class="service-name">优福享</div>
+            </div>
+            <div class="service-item" onclick="showToast('东方福利')">
+                <div class="service-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                </div>
+                <div class="service-name">东方福利</div>
+            </div>
+            <div class="service-item" onclick="showToast('商超')">
+                <div class="service-icon">
+                    <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                </div>
+                <div class="service-name">商超</div>
+            </div>
+            <div class="service-item" onclick="showToast('水果')">
+                <div class="service-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                </div>
+                <div class="service-name">水果</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 双栏广告 -->
+    <section class="ads-section">
+        <div class="ads-grid">
+            <div class="ads-left" onclick="showToast('非转基因专区')">
+                <div class="big-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                </div>
+                <div style="font-size: 16px;">非转基因</div>
+                <div style="font-size: 12px; opacity: 0.8; margin-top: 4px;">ECTAS</div>
+            </div>
+            <div class="ads-right">
+                <div class="ads-small" onclick="showToast('大牌购')">大牌购</div>
+                <div class="ads-small" onclick="showToast('杂粮面')">杂粮面</div>
+                <div class="ads-small" onclick="showToast('生鲜')">生鲜</div>
+                <div class="ads-small" onclick="showToast('进口')">进口</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 精选商品 -->
+    <section class="products-section">
+        <div class="section-header">
+            <div class="section-title">精选商品</div>
+            <div class="view-more" onclick="showToast('查看更多商品')">
+                查看更多 >
+            </div>
+        </div>
+        <div class="category-tabs">
+            <div class="tab active" onclick="switchTab(this)">当季水果</div>
+            <div class="tab" onclick="switchTab(this)">肉蛋类</div>
+            <div class="tab" onclick="switchTab(this)">水产海鲜</div>
+            <div class="tab" onclick="switchTab(this)">粮油米面</div>
+            <div class="tab" onclick="switchTab(this)">奶粉</div>
+        </div>
+        <div class="products-grid">
+            <div class="product-card" onclick="showToast('查看商品详情')">
+                <div class="product-img"></div>
+                <div class="product-info">
+                    <div class="product-name">新鲜苹果</div>
+                    <div class="product-price"><span>¥</span>12.9</div>
+                </div>
+            </div>
+            <div class="product-card" onclick="showToast('查看商品详情')">
+                <div class="product-img"></div>
+                <div class="product-info">
+                    <div class="product-name">红颜草莓</div>
+                    <div class="product-price"><span>¥</span>29.9</div>
+                </div>
+            </div>
+            <div class="product-card" onclick="showToast('查看商品详情')">
+                <div class="product-img"></div>
+                <div class="product-info">
+                    <div class="product-name">进口香蕉</div>
+                    <div class="product-price"><span>¥</span>9.9</div>
+                </div>
+            </div>
+            <div class="product-card" onclick="showToast('查看商品详情')">
+                <div class="product-img"></div>
+                <div class="product-info">
+                    <div class="product-name">麒麟西瓜</div>
+                    <div class="product-price"><span>¥</span>19.9</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 底部导航 -->
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="switchNav(this, 0)">
+            <div class="nav-icon-wrapper">
+                <div class="nav-icon">
+                    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                </div>
+            </div>
+            <div class="nav-text">首页</div>
+        </div>
+        <div class="nav-item" onclick="switchNav(this, 1)">
+            <div class="nav-icon">
+                <svg viewBox="0 0 24 24"><path d="M4 11h5V5H4v6zm0 7h5v-6H4v6zm6 0h5v-6h-5v6zm6 0h5v-6h-5v6zm-6-7h5V5h-5v6zm6-6v6h5V5h-5z"/></svg>
+            </div>
+            <div class="nav-text">分类</div>
+        </div>
+        <div class="nav-item" onclick="switchNav(this, 2)">
+            <div class="nav-icon">
+                <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+            </div>
+            <div class="nav-text">购物车</div>
+        </div>
+        <div class="nav-item" onclick="switchNav(this, 3)">
+            <div class="nav-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            </div>
+            <div class="nav-text">我的</div>
+        </div>
+    </nav>
+
+    <script>
+        // 显示提示消息
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // 切换Banner
+        function switchBanner(index) {
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((dot, i) => {
+                if (i === index) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+            showToast('切换到Banner ' + (index + 1));
+        }
+
+        // 切换分类标签
+        function switchTab(element) {
+            // 移除所有active类
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            // 添加active类到当前元素
+            element.classList.add('active');
+            showToast('切换到：' + element.textContent);
+        }
+
+        // 切换底部导航
+        function switchNav(element, index) {
+            // 移除所有active类
+            document.querySelectorAll('.nav-item').forEach(nav => {
+                nav.classList.remove('active');
+            });
+            // 添加active类到当前元素
+            element.classList.add('active');
+
+            const navNames = ['首页', '分类', '购物车', '我的'];
+            showToast('切换到：' + navNames[index]);
+        }
+
+        // 搜索功能
+        function handleSearch() {
+            const input = document.getElementById('searchInput');
+            const keyword = input.value.trim();
+            if (keyword) {
+                showToast('搜索：' + keyword);
+            } else {
+                showToast('请输入搜索关键字');
+                input.focus();
+            }
+        }
+
+        // 搜索框回车事件
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleSearch();
+            }
+        });
+
+        // 添加触摸反馈
+        document.querySelectorAll('.category-item, .service-item, .activity-card, .product-card, .ads-small, .view-more').forEach(item => {
+            item.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.95)';
+            });
+            item.addEventListener('touchend', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>
+
+
