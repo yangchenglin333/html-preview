@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>南约地磅管理系统 · 政府内部版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'Helvetica Neue', Roboto, system-ui, sans-serif;
+        }
+
+        body {
+            background: #eef2f6;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* 主容器 — 更紧凑，适合政务内网 */
+        .gov-container {
+            width: 100%;
+            max-width: 1200px;          /* 稍窄，不占满全屏 */
+            background: #ffffff;
+            border-radius: 16px;         /* 适度圆角，但不夸张 */
+            box-shadow: 0 8px 20px rgba(0, 20, 40, 0.12);
+            padding: 20px 24px;
+            position: relative;
+            border: 1px solid #d9e1ec;
+        }
+
+        /* 遮罩层 — 与之前一致，但微调 */
+        .loading-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(1px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            border-radius: 16px;
+            flex-direction: column;
+            gap: 12px;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.15s;
+            pointer-events: none;
+        }
+        .loading-mask.show {
+            visibility: visible;
+            opacity: 1;
+            pointer-events: all;
+        }
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid #cfdeff;
+            border-top: 3px solid #1e5bbf;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        .loading-mask span {
+            color: #1e3a5f;
+            background: white;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #cdddec;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* 标题 — 稳重 */
+        .page-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #10355e;
+            border-left: 6px solid #1e6af5;
+            padding-left: 16px;
+            margin-bottom: 18px;
+            line-height: 1.3;
+            letter-spacing: 0.3px;
+        }
+
+        /* 统计卡片 — 紧凑，底色柔和 */
+        .stats-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            flex: 1 1 150px;
+            background: #f5f9ff;
+            border-radius: 12px;
+            padding: 14px 12px;
+            border: 1px solid #dae3f0;
+            cursor: pointer;
+            transition: background 0.1s, border 0.1s;
+            box-shadow: 0 2px 4px rgba(0,20,40,0.02);
+        }
+        .stat-card:hover {
+            background: #e6efff;
+            border-color: #8db2e6;
+        }
+        .stat-label {
+            font-size: 13px;
+            color: #2c405c;
+            margin-bottom: 6px;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+        }
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #102b4a;
+            line-height: 1.2;
+        }
+        .stat-value.special-red {
+            color: #b22222;  /* 深红，稳重 */
+        }
+        .stat-value.black-bold {
+            font-weight: 800;
+            color: #0c2a4b;
+        }
+
+        /* 工具栏 紧凑 */
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .search-wrapper {
+            flex: 2 1 260px;
+            display: flex;
+            align-items: center;
+            background: white;
+            border: 1px solid #bacddc;
+            border-radius: 30px;
+            padding: 2px 2px 2px 16px;
+            transition: 0.15s;
+        }
+        .search-wrapper:focus-within {
+            border-color: #1e6af5;
+            box-shadow: 0 0 0 2px rgba(30,106,245,0.2);
+        }
+        .search-wrapper input {
+            flex: 1;
+            border: none;
+            padding: 8px 0;
+            font-size: 14px;
+            background: transparent;
+            outline: none;
+            color: #1f344b;
+        }
+        .search-wrapper input::placeholder {
+            color: #8a9fb0;
+            font-size: 13px;
+        }
+        .search-btn {
+            background: #1e5bbf;
+            border: none;
+            color: white;
+            font-weight: 500;
+            padding: 7px 20px;
+            border-radius: 30px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.15s;
+            border: 1px solid #1a4a9e;
+            white-space: nowrap;
+        }
+        .search-btn:hover {
+            background: #164a99;
+        }
+        .search-btn:disabled {
+            background: #99b5e3;
+            border-color: #7f9fd0;
+            cursor: not-allowed;
+        }
+
+        .status-filter {
+            flex: 1 1 130px;
+            padding: 8px 12px;
+            border-radius: 30px;
+            border: 1px solid #bacddc;
+            background: white;
+            font-size: 14px;
+            color: #1f344b;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .import-export {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+        .btn-import, .btn-export {
+            padding: 7px 22px;
+            border-radius: 30px;
+            font-weight: 500;
+            font-size: 13px;
+            border: 1px solid #a3b9d0;
+            background: white;
+            cursor: pointer;
+            transition: 0.1s;
+            white-space: nowrap;
+            color: #1d3f6e;
+        }
+        .btn-import:hover, .btn-export:hover {
+            background: #e3ebf6;
+            border-color: #7c9bc2;
+        }
+
+        /* 表格区域 紧凑清晰 */
+        .table-wrapper {
+            border-radius: 12px;
+            border: 1px solid #cfddee;
+            overflow: auto;
+            background: white;
+            margin-bottom: 18px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+            font-size: 14px;
+        }
+        th {
+            background: #eaf0f9;
+            font-weight: 600;
+            color: #1f3a60;
+            padding: 12px 10px;
+            text-align: left;
+            border-bottom: 1px solid #c8d6e8;
+            white-space: nowrap;
+            font-size: 13px;
+            letter-spacing: 0.2px;
+        }
+        td {
+            padding: 10px 10px;
+            color: #1f2f44;
+            border-bottom: 1px solid #e2eaf3;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .status-offline {
+            color: #b22222;
+            font-weight: 600;
+        }
+        .status-weighing {
+            color: #b22222;
+            font-weight: 600;
+        }
+        .no-data {
+            text-align: center;
+            padding: 36px !important;
+            color: #6b7b90;
+            font-size: 14px;
+        }
+
+        /* 分页 紧凑 */
+        .pagination-area {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .pagination-info {
+            font-size: 13px;
+            color: #4f647b;
+        }
+        .pagination-controls {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .page-btn {
+            min-width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            border: 1px solid #c8d6e8;
+            background: white;
+            font-weight: 500;
+            color: #1f3a60;
+            cursor: pointer;
+            transition: 0.1s;
+            font-size: 13px;
+            padding: 0 4px;
+        }
+        .page-btn.active {
+            background: #1e5bbf;
+            color: white;
+            border-color: #1e5bbf;
+        }
+        .page-btn:not(.active):hover {
+            background: #e3ebf6;
+        }
+        .page-btn.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+            background: #f2f6fc;
+        }
+        .page-ellipsis {
+            width: 30px;
+            text-align: center;
+            color: #6f85a0;
+            font-size: 13px;
+        }
+
+        .note-text {
+            color: #6f7d95;
+        }
+    </style>
+</head>
+<body>
+<div class="gov-container" id="appContainer">
+    <div class="loading-mask" id="loadingMask">
+        <div class="spinner"></div>
+        <span>数据加载中，请稍候...</span>
+    </div>
+
+    <h1 class="page-title">南约地磅管理系统</h1>
+
+    <!-- 统计卡片 (数据完全符合截图: 20,17,7,2,3) 但功能上依然动态更新 -->
+    <div class="stats-grid" id="statsContainer">
+        <div class="stat-card" data-filter="total">
+            <div class="stat-label">站点总数</div>
+            <div class="stat-value black-bold" id="totalCount">20</div>
+        </div>
+        <div class="stat-card" data-filter="online">
+            <div class="stat-label">联网站点</div>
+            <div class="stat-value black-bold" id="onlineCount">17</div>
+        </div>
+        <div class="stat-card" data-filter="idle">
+            <div class="stat-label">闲置站点</div>
+            <div class="stat-value black-bold" id="idleCount">7</div>
+        </div>
+        <div class="stat-card" data-filter="weighing">
+            <div class="stat-label">称重站点</div>
+            <div class="stat-value special-red" id="weighingCount">2</div>
+        </div>
+        <div class="stat-card" data-filter="offline">
+            <div class="stat-label">断网站点</div>
+            <div class="stat-value special-red" id="offlineCount">3</div>
+        </div>
+    </div>
+
+    <!-- 工具栏 -->
+    <div class="toolbar">
+        <div class="search-wrapper">
+            <input type="text" id="searchInput" placeholder="搜索站点名称" maxlength="40" autocomplete="off">
+            <button class="search-btn" id="searchBtn">搜索</button>
+        </div>
+        <select id="statusSelect" class="status-filter">
+            <option value="all">全部</option>
+            <option value="online">联网</option>
+            <option value="offline">断网</option>
+            <option value="weighing">称重</option>
+            <option value="idle">闲置</option>
+        </select>
+        <div class="import-export">
+            <button class="btn-import" id="importBtn">导入</button>
+            <button class="btn-export" id="exportBtn">导出</button>
+        </div>
+    </div>
+
+    <!-- 表格 -->
+    <div class="table-wrapper">
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th>站点序号</th>
+                    <th>站点名称</th>
+                    <th>网络状态</th>
+                    <th>衡器状态</th>
+                    <th>当前重量</th>
+                    <th>备注</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- 动态渲染 -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 分页 -->
+    <div class="pagination-area">
+        <div class="pagination-info" id="paginationInfo">每页最多10条数据，共0条数据</div>
+        <div class="pagination-controls" id="paginationControls"></div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ---------- 数据（严格符合截图数值：总数20，联网17，断网3，闲置7，称重2）---------
+        const mockStations = [
+            { id:78, name:'钓鱼台站点', net:'联网', scale:'称重', weight:77222, remark:'' },
+            { id:66, name:'城北货运', net:'断网', scale:'闲置', weight:0, remark:'离线' },
+            { id:21, name:'开发区东', net:'联网', scale:'闲置', weight:0, remark:'' },
+            { id:33, name:'临港站', net:'联网', scale:'闲置', weight:0, remark:'' },
+            { id:45, name:'西郊粮库', net:'联网', scale:'停用', weight:0, remark:'维护中' },
+            { id:12, name:'南门桥站', net:'联网', scale:'称重', weight:44350, remark:'' },
+            { id:8,  name:'工业园区A', net:'联网', scale:'停用', weight:0, remark:'' },
+            { id:92, name:'物流园北', net:'断网', scale:'闲置', weight:0, remark:'光纤故障' },
+            { id:37, name:'水泥厂站', net:'联网', scale:'停用', weight:0, remark:'' },
+            { id:51, name:'沙石集散', net:'联网', scale:'停用', weight:0, remark:'' },
+            { id:19, name:'钢材市场', net:'联网', scale:'闲置', weight:0, remark:'' },
+            { id:63, name:'保税区站', net:'联网', scale:'闲置', weight:1250, remark:'' },
+            { id:27, name:'垃圾处理站', net:'断网', scale:'闲置', weight:0, remark:'网络异常' },
+            { id:84, name:'客运枢纽', net:'联网', scale:'停用', weight:0, remark:'' },
+            { id:5,  name:'码头站', net:'联网', scale:'停用', weight:0, remark:'' },
+            { id:99, name:'建材西路', net:'联网', scale:'停用', weight:0, remark:'' },
+            { id:41, name:'环保科技', net:'联网', scale:'停用', weight:0, remark:'' },
+            { id:73, name:'粮食储备库', net:'联网', scale:'停用', weight:7800, remark:'' },
+            { id:30, name:'油田物资', net:'联网', scale:'停用', weight:0, remark:'' },
+            { id:14, name:'大桥站', net:'联网', scale:'停用', weight:0, remark:'' }
+        ];
+        // 验证: 联网: 除3个断网外都是联网 -> 17；闲置: 66,21,33,92,19,63,27 = 7个；称重: 78,12 =2；断网:66,92,27=3。完美
+
+        // 状态变量
+        let currentFilterStatus = 'all';
+        let currentSearchTerm = '';
+        let filteredData = [...mockStations];
+        let currentPage = 1;
+        const pageSize = 10;
+        let loading = false;
+
+        // DOM 元素
+        const loadingMask = document.getElementById('loadingMask');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const statusSelect = document.getElementById('statusSelect');
+        const tableBody = document.getElementById('tableBody');
+        const paginationInfo = document.getElementById('paginationInfo');
+        const paginationControls = document.getElementById('paginationControls');
+        const importBtn = document.getElementById('importBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const totalSpan = document.getElementById('totalCount');
+        const onlineSpan = document.getElementById('onlineCount');
+        const idleSpan = document.getElementById('idleCount');
+        const weighingSpan = document.getElementById('weighingCount');
+        const offlineSpan = document.getElementById('offlineCount');
+
+        // 统计卡片点击
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const filter = card.dataset.filter;
+                if (filter === 'total') {
+                    statusSelect.value = 'all';
+                    currentFilterStatus = 'all';
+                } else if (filter === 'online') {
+                    statusSelect.value = 'online';
+                    currentFilterStatus = 'online';
+                } else if (filter === 'offline') {
+                    statusSelect.value = 'offline';
+                    currentFilterStatus = 'offline';
+                } else if (filter === 'idle') {
+                    statusSelect.value = 'idle';
+                    currentFilterStatus = 'idle';
+                } else if (filter === 'weighing') {
+                    statusSelect.value = 'weighing';
+                    currentFilterStatus = 'weighing';
+                }
+                applyFilterAndSearch(false);
+            });
+        });
+
+        // 输入字符限制 (40字节)
+        searchInput.addEventListener('input', function(e) {
+            let value = e.target.value;
+            let bytes = 0;
+            for (let i = 0; i < value.length; i++) {
+                bytes += (value.charCodeAt(i) > 255) ? 2 : 1;
+            }
+            if (bytes > 40) {
+                while (bytes > 40 && value.length > 0) {
+                    value = value.slice(0, -1);
+                    bytes = 0;
+                    for (let i = 0; i < value.length; i++) {
+                        bytes += (value.charCodeAt(i) > 255) ? 2 : 1;
+                    }
+                }
+                e.target.value = value;
+            }
+        });
+
+        function triggerSearch() {
+            currentSearchTerm = searchInput.value.trim();
+            currentPage = 1;
+            applyFilterAndSearch(true);
+        }
+        searchBtn.addEventListener('click', triggerSearch);
+        searchInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') triggerSearch(); });
+
+        statusSelect.addEventListener('change', () => {
+            currentFilterStatus = statusSelect.value;
+            currentPage = 1;
+            applyFilterAndSearch(true);
+        });
+
+        function applyFilterAndSearch(showLoading = true) {
+            if (loading) return;
+            if (showLoading) showLoadingMask(true);
+
+            setTimeout(() => {
+                let temp = [...mockStations];
+                if (currentFilterStatus !== 'all') {
+                    if (currentFilterStatus === 'online') {
+                        temp = temp.filter(s => s.net === '联网');
+                    } else if (currentFilterStatus === 'offline') {
+                        temp = temp.filter(s => s.net === '断网');
+                    } else if (currentFilterStatus === 'weighing') {
+                        temp = temp.filter(s => s.scale === '称重');
+                    } else if (currentFilterStatus === 'idle') {
+                        temp = temp.filter(s => s.scale === '闲置');
+                    }
+                }
+
+                if (currentSearchTerm !== '') {
+                    temp = temp.filter(s => s.name.includes(currentSearchTerm));
+                }
+
+                filteredData = temp;
+                currentPage = 1;
+                renderTable();
+                updateStats();      // 保持卡片数字不变（按原始数据）
+                if (showLoading) showLoadingMask(false);
+            }, 280);
+        }
+
+        // 更新统计卡片（从原始数据重新获取，确保显示与截图一致）
+        function updateStats() {
+            totalSpan.innerText = mockStations.length;               // 20
+            onlineSpan.innerText = mockStations.filter(s => s.net === '联网').length;   // 17
+            offlineSpan.innerText = mockStations.filter(s => s.net === '断网').length;   // 3
+            idleSpan.innerText = mockStations.filter(s => s.scale === '闲置').length;    // 7
+            weighingSpan.innerText = mockStations.filter(s => s.scale === '称重').length; // 2
+        }
+
+        function renderTable() {
+            const total = filteredData.length;
+            const start = (currentPage - 1) * pageSize;
+            const end = Math.min(start + pageSize, total);
+            const pageData = filteredData.slice(start, end);
+
+            if (pageData.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="6" class="no-data">暂无匹配的站点结果</td></tr>`;
+            } else {
+                let html = '';
+                pageData.forEach(s => {
+                    const netClass = s.net === '断网' ? 'status-offline' : '';
+                    const scaleClass = s.scale === '称重' ? 'status-weighing' : '';
+                    const weightStr = s.weight.toLocaleString();
+                    html += `<tr>
+                        <td>${s.id}</td>
+                        <td>${s.name}</td>
+                        <td class="${netClass}">${s.net}</td>
+                        <td class="${scaleClass}">${s.scale}</td>
+                        <td>${weightStr}</td>
+                        <td class="note-text">${s.remark || ''}</td>
+                    </tr>`;
+                });
+                tableBody.innerHTML = html;
+            }
+
+            paginationInfo.innerText = `每页最多10条数据，共${total}条数据`;
+            renderPagination(total);
+        }
+
+        function renderPagination(total) {
+            const totalPages = Math.ceil(total / pageSize);
+            if (total <= pageSize) {
+                paginationControls.innerHTML = `<span class="page-btn disabled" data-page="prev"><</span>
+                                                <span class="page-btn active">1</span>
+                                                <span class="page-btn disabled" data-page="next">></span>`;
+                return;
+            }
+
+            let btns = '';
+            btns += `<span class="page-btn ${currentPage === 1 ? 'disabled' : ''}" data-page="prev"><</span>`;
+
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
+            if (currentPage <= 3) endPage = Math.min(5, totalPages);
+            if (currentPage > totalPages - 2) startPage = Math.max(1, totalPages - 4);
+
+            if (startPage > 1) {
+                btns += `<span class="page-btn" data-page="1">1</span>`;
+                if (startPage > 2) btns += `<span class="page-ellipsis">...</span>`;
+            }
+            for (let i = startPage; i <= endPage; i++) {
+                btns += `<span class="page-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</span>`;
+            }
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) btns += `<span class="page-ellipsis">...</span>`;
+                btns += `<span class="page-btn" data-page="${totalPages}">${totalPages}</span>`;
+            }
+            btns += `<span class="page-btn ${currentPage === totalPages ? 'disabled' : ''}" data-page="next">></span>`;
+
+            paginationControls.innerHTML = btns;
+
+            document.querySelectorAll('.page-btn[data-page]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    if (loading) return;
+                    const page = e.target.dataset.page;
+                    let newPage = currentPage;
+                    if (page === 'prev') newPage = currentPage - 1;
+                    else if (page === 'next') newPage = currentPage + 1;
+                    else newPage = parseInt(page, 10);
+                    if (newPage < 1 || newPage > totalPages || newPage === currentPage) return;
+                    currentPage = newPage;
+                    renderTable();
+                });
+            });
+        }
+
+        function showLoadingMask(show) {
+            if (show) {
+                loading = true;
+                loadingMask.classList.add('show');
+                searchBtn.disabled = true;
+                statusSelect.disabled = true;
+                importBtn.disabled = true;
+                exportBtn.disabled = true;
+            } else {
+                loading = false;
+                loadingMask.classList.remove('show');
+                searchBtn.disabled = false;
+                statusSelect.disabled = false;
+                importBtn.disabled = false;
+                exportBtn.disabled = false;
+            }
+        }
+
+        // 导入/导出模拟（保留功能）
+        importBtn.addEventListener('click', function() {
+            if (loading) return;
+            showLoadingMask(true);
+            setTimeout(() => {
+                showLoadingMask(false);
+                alert('您的模版信息与默认模版不符无法上传。');
+            }, 600);
+        });
+
+        exportBtn.addEventListener('click', function() {
+            if (loading) return;
+            showLoadingMask(true);
+            setTimeout(() => {
+                const exportData = filteredData;
+                let csv = '站点序号,站点名称,网络状态,衡器状态,当前重量,备注\n';
+                exportData.forEach(s => {
+                    csv += `${s.id},${s.name},${s.net},${s.scale},${s.weight},${s.remark}\n`;
+                });
+                const blob = new Blob(['\uFEFF' + csv], {type: 'text/csv;charset=utf-8;'});
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = '站点数据_筛选后.csv';
+                link.click();
+                showLoadingMask(false);
+            }, 500);
+        });
+
+        // 初始化
+        function init() {
+            updateStats();
+            filteredData = [...mockStations];
+            currentPage = 1;
+            renderTable();
+        }
+        init();
+    })();
+</script>
+</body>
+</html>
